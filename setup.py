@@ -4,10 +4,10 @@ if __name__ == "__main__":
     setuptools.setup(
         name='quantum_python',
         version="0.2.1",
-        description='A small ',
+        description='A small quantum program written in Python with a Psi4 backend',
         author='Daniel Smith',
         author_email='dgasmith@vt.edu',
-        url="https://github.com/MolSSI/python_template",
+        url="https://github.com/MolSSI/quantum_python",
         license='BSD-3C',
         packages=setuptools.find_packages(),
         install_requires=[
