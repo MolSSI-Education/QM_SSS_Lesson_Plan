@@ -1,0 +1,164 @@
+%\documentclass[12pt]{article}
+\documentclass[aip,jcp,preprint,superscriptaddress,floatfix]{revtex4-1}
+\usepackage{url,graphicx,tabularx,array,geometry,amsmath,listings}
+\setlength{\parskip}{2ex} %--skip lines between paragraphs
+\setlength{\parindent}{20pt} %--don't indent paragraphs
+
+\setlength{\headheight}{-50pt}
+\setlength{\textheight}{700pt}
+\setlength{\textwidth}{500pt}
+\setlength{\oddsidemargin}{-10pt}
+\setlength{\footskip}{50pt}
+\usepackage{graphicx}% Include figure files
+\usepackage{bm}
+\graphicspath{{./Figures/}}
+
+%-- Commands for header
+\renewcommand{\title}[1]{\textbf{\large{#1}}\\}
+\renewcommand{\line}{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}\hline\\\end{tabularx}\\[-0.5cm]}
+\newcommand{\leftright}[2]{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}#1%
+& #2\\\end{tabularx}\\[-1cm]}
+
+%\linespread{2} %-- Uncomment for Double Space
+\begin{document}
+
+\title{\center{A practicalist guide to Self Consistent Field}}
+\rule{\textwidth}{1pt}
+\leftright{The Molecular Sciences Software Institute}{Daniel G. A. Smith} %-- left and right positions in the header
+
+\bigskip
+
+\section{Notation}
+
+There exist many ways to label and describe quantum chemistry theories.
+In this section the quantities and indices used will be defined and outlined.
+Generalized multidimensional arrays will be referred to as "tensors" and two dimensional arrays will be referred to as "matrices".
+
+\subsection{Einstein summation notation}
+The generalized Einstein summation notation will be employed where repeated indices on the right hand side (RHS) that do not appear on left hand side (LHS) are assumed to be summed over.
+A matrix-matrix multiplication example:
+\begin{align}
+{\rm Matrix\; convention:\; }\;\;\bf{C} &= \bf{A}\bf{B}\\
+{\rm Explicit\; Sum:\; }C_{ij} &= \sum_{k} A_{ik} B_{kj}\\
+{\rm Einstein\; summation:\;} C_{ij} &= A_{ik} B_{kj}
+\end{align}
+
+an outer product example
+\begin{align}
+C_{ikj} &= A_{ik} B_{kj}
+\end{align}
+
+
+\subsection{Indices}
+The following notation will be adhered to throughout this document.
+Occasionally indices will be redefined, but it should be clear in the context what the alternate meaning is.
+
+\begin{itemize} \itemsep1pt \parskip0pt \parsep0pt
+\item \makebox[10cm]{General atomic orbitals\hfill}                        $\mu, \nu, \lambda, \sigma$  
+\item \makebox[10cm]{Inactive (doubly occupied) molecular orbitals\hfill}      i, j, k, l
+\item \makebox[10cm]{Unoccupied (virtual) molecular orbitals \hfill}           a, b, c, d
+\item \makebox[10cm]{General index molecular orbitals\hfill}                   p, q, r, s, m, n, o
+\end{itemize}
+\bigskip
+
+
+\subsection{Tensors}
+Common matrices and tensors utilized in this work. 
+\begin{itemize} \itemsep1pt \parskip0pt \parsep0pt
+\item \makebox[8cm]{Core Hamiltonian matrix \hfill}   $H_{\mu\nu}$
+\item \makebox[8cm]{Molecular orbital coefficient matrix\hfill}   $C_{p\mu}$
+\item \makebox[8cm]{Overlap matrix\hfill}   $S_{\mu\nu}$
+\item \makebox[8cm]{SCF one-particle density matrix\hfill}   $D_{pq}$
+\item \makebox[8cm]{Atomic-orbital two-electron integral\hfill}    $g_{\mu\nu\lambda \sigma}$ =  $\int \mu({\bf r}_1) \nu({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2$
+\end{itemize}
+
+\section{Self Consistent Field}
+Here we will focus on a variant of Self Consistent Field (SCF) known as restricted Hartree-Fock (RHF) where the $\alpha$ and $\beta$ orbitals are equal denoting a closed-shell molecule with all paired electrons.
+To begin, let us start with the AO Fock matrix, which is represented as\cite{Szabo:1996tu, Levine:2000to}
+\begin{eqnarray}
+\label{rhf_fock}
+F_{\mu\nu} = H_{\mu\nu} + 2 g_{\mu \nu \lambda \sigma} D_{\lambda \sigma} -  g_{\mu\lambda \nu \sigma} D_{\lambda \sigma}
+\end{eqnarray}
+
+and the one-particle RHF density matrix $D$ is computed from the orbitals C (assumed real).
+\begin{eqnarray}
+D_{\lambda \sigma} = C_{i\sigma}C_{i\lambda}
+\end{eqnarray}
+It should be noted that if $D$ is converted to the MO basis, we have a diagonal matrix of ones up to the number of occupied indices and zero thereafter
+\begin{align}
+D_{pq} = \begin{pmatrix}
+1_{ii}& 0 \\
+0 &0\\
+\end{pmatrix}
+\end{align}
+
+
+The total RHF energy can be expressed as a sum of the electronic and Born-Oppenheimer (BO) nuclear energies
+\begin{align}
+E^{RHF} &= E^{RHF}_{electronic} + E^{BO}_{nuclear}\\
+E^{RHF}_{electronic} &= (F_{\mu\nu} + H_{\mu\nu}) D_{\mu\nu}\\
+E^{BO}_{nuclear} &= \sum_{i>j}\frac{Z_iZ_j}{r_{ij}}
+\end{align}
+where $Z_i$ is the nuclear charge of atom $i$.
+
+
+Examining these equations, it is clear that the most computationally demanding portions are the convolution of the density matrix with the two-electron integral tensor.
+Therefore, it is often convenient to define the following quantities
+\begin{eqnarray}
+J[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \nu \lambda \sigma} D_{\lambda \sigma}\\
+K[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \lambda \nu \sigma} D_{\lambda \sigma} 
+\end{eqnarray}
+The resulting $J$ and $K$ matrices are often called the Coulomb and Exchange matrices, respectively.
+Often quantum chemistry programs have very efficient routines to compute these equations, thus utilizing these routines is of the utmost importance.
+
+
+\subsection{Roothaan Equations}
+The SCF equations are often solved through the Roothan equations\cite{Levine:2000to}, shown in matrix formalism
+\begin{eqnarray}
+\label{roothan_eqn}
+{\rm\bf FC} = {\rm\bf SC}\epsilon
+\end{eqnarray}
+This is a generalized pseudo-eigenvalue problem, where {\bf S} represents our orthgonality constraints.
+At every iteration we need to solve for the coefficients {\bf C} that diagonalize the Fock matrix.
+An ideal world would produce AO orbitals that are orthogonal, unfortunately, as demonstrated by non-diagonal overlap matrices, this is not the case.
+To overcome this problem, a orthonormalized Fock matrix is diagonalized instead, shown in matrix formalism
+\begin{align}
+{\rm\bf A} &= {\rm\bf S}^{-1/2}\\
+{\rm\bf F}' &= {\rm\bf A}^{T}{\rm\bf FA}\\
+{\rm\bf F'C'} &= {\rm\bf C'}\epsilon\\
+{\rm\bf C} &= {\rm\bf AC}'
+\end{align}
+At every iteration we construct our Fock matrix from the previous orbitals ({\bf C}$_{n-1}$) and compute new orbitals ({\bf C}$_{n}$) until convergence is reached.
+
+\begin{figure}[htbp]
+\begin{center}
+\caption{A RHF computation of "physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set. dE is the energy difference between iterations and dRMS is the root mean square of the orbital gradient.}
+\label{rhf_water}
+{\footnotesize\linespread{1}\normalfont\ttfamily
+\begin{verbatim}
+RHF Iteration   1: Energy = -68.98003273414295   dE = -6.898E+01   dRMS = 1.165E-01
+RHF Iteration   2: Energy = -69.64725442845806   dE = -6.672E-01   dRMS = 1.074E-01
+RHF Iteration   3: Energy = -72.84030309363035   dE = -3.193E+00   dRMS = 1.039E-01
+RHF Iteration   4: Energy = -72.89488390650019   dE = -5.458E-02   dRMS = 8.660E-02
+RHF Iteration   5: Energy = -74.12078064688371   dE = -1.225E+00   dRMS = 8.646E-02
+RHF Iteration   6: Energy = -74.86718194576882   dE = -7.464E-01   dRMS = 6.528E-02
+RHF Iteration   7: Energy = -75.41490878039029   dE = -5.477E-01   dRMS = 5.216E-02
+...
+RHF Iteration  22: Energy = -75.98979285429830   dE = -3.768E-06   dRMS = 1.188E-04
+RHF Iteration  23: Energy = -75.98979450314014   dE = -1.648E-06   dRMS = 7.860E-05
+RHF Iteration  24: Energy = -75.98979522446778   dE = -7.213E-07   dRMS = 5.198E-05
+\end{verbatim}
+}
+\end{center}
+\end{figure}
+
+For the rest of this section, the "physicist's water molecule" (O-H = 1.1\AA, $\angle$ HOH = 104$^{\circ}$) will be utilized in the cc-pVDZ basis set for illustrating convergence patterns.
+A pure iterative diagonalization approach is shown in Fig.~\ref{rhf_water}.
+As can be seen, the convergence for this simple molecule is quite slow and the next sections will detail convergence acceleration.
+
+\newpage
+
+\bibliographystyle{aip.bst}
+\bibliography{references,konrad_references,jrncodes,mainbib-ds}
+
+\end{document}

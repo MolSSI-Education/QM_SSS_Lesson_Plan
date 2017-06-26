@@ -1,0 +1,127 @@
+%\documentclass[12pt]{article}
+\documentclass[aip,jcp,preprint,superscriptaddress,floatfix]{revtex4-1}
+\usepackage{url,graphicx,tabularx,array,geometry,amsmath,listings}
+\setlength{\parskip}{2ex} %--skip lines between paragraphs
+\setlength{\parindent}{20pt} %--don't indent paragraphs
+
+\setlength{\headheight}{-50pt}
+\setlength{\textheight}{700pt}
+\setlength{\textwidth}{500pt}
+\setlength{\oddsidemargin}{-10pt}
+\setlength{\footskip}{50pt}
+\usepackage{graphicx}% Include figure files
+\usepackage{bm}
+\graphicspath{{./Figures/}}
+
+%-- Commands for header
+\renewcommand{\title}[1]{\textbf{\large{#1}}\\}
+\renewcommand{\line}{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}\hline\\\end{tabularx}\\[-0.5cm]}
+\newcommand{\leftright}[2]{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}#1%
+& #2\\\end{tabularx}\\[-1cm]}
+
+%\linespread{2} %-- Uncomment for Double Space
+\begin{document}
+
+\title{\center{Direct Inversion of the Iterative Subspace}}
+\rule{\textwidth}{1pt}
+\leftright{The Molecular Sciences Software Institute}{Daniel G. A. Smith} %-- left and right positions in the header
+
+\bigskip
+
+\section{Direct Inversion of the Iterative Subspace convergence acceleration}
+Direct Inversion of the Iterative Subspace (DIIS) is often used for convergence acceleration\cite{Pulay:1980jn} of SCF wavefunctions.
+For iterative diagonalization, we discard all previous guess vectors (orbitals) and generate completely new guess vectors at each iteration.
+DIIS keeps previous guess vectors and builds the best guess as a linear combination of all previous guess vectors.
+
+For the explanation of DIIS, we will break with all conventional terminology to stress that this is a linear algebra technique that is widely applicable to many problems besides SCF, as we will see in the next several sections.
+Let us assume that we have generated several state vectors ($s$) with a series of complementary error vectors ($r$) through some iterative method.
+
+For DIIS to be applicable, we assume that both the next residual and the next state vector can be built as a linear combination of previous guess vectors with coefficients $c$.
+\begin{eqnarray}
+\label{diis_truths} 
+s_{i+1} = \sum_{i}^{n} c_is_i\\
+r_{i+1} = \sum_{i}^{n} c_ir_i\\
+\sum_{i}^{n} c_i = 1
+\end{eqnarray}
+Therefore, we want to select the coefficients in a manner that minimizes the norm of the residual
+
+\begin{eqnarray}
+\label{diis_min} 
+r_{i+1}\cdot r_{i+1} = \sum_{ij}^{n}c_ic_j(r_i \cdot r_j)
+\end{eqnarray}
+
+This can be solved through the following matrix equations
+\begin{eqnarray}
+\begin{bmatrix}
+ B_{11}&   B_{12}&  ...& B_{1n} & -1\\ 
+  B_{21}&   B_{22}&  ...& B_{2n} & -1\\ 
+ ...&  ...&  ...&  ...& ...\\ 
+  B_{n1}&  B_{n2}&  ...&   B_{nn}& -1\\ 
+ -1& -1 & ... &  -1& 0
+\end{bmatrix}
+\begin{bmatrix}
+c_1\\
+c_2\\
+...\\
+c_n\\
+\lambda
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\
+0\\
+...\\
+0\\
+-1
+\end{bmatrix}
+\end{eqnarray}
+where $B$ is a matrix of inner products between error vectors
+\begin{eqnarray}
+B_{ij} = (r_i \cdot r_j)
+\end{eqnarray}
+and $\lambda$ is value of the Lagrange multiplier.
+It should be noted that often our error vectors are in effect tensors, e.g., $F_{\mu\nu}$, and the norm is computed as the generalized inner product between tensors.
+
+For SCF, the state vector is always the Fock matrix and the error vector is typically the orthonormalized orbital gradient expressed in a AO matrix formalism,
+\begin{eqnarray}
+{\rm r_{\mu\nu} = ({\bf A}^T({\rm\bf FDS} - {\rm\bf SDF}}){\bf A})_{\mu\nu}
+\end{eqnarray}
+The procedure for applying DIIS to SCF at every iteration is therefore:
+\begin{enumerate}
+\item Compute the Fock ($s_n$) matrix using ${\bf C}_{n}$ orbitals
+\item Construct the AO gradient ($r_n$)
+\item Obtain the DIIS Fock guess ($s_{\rm DIIS}$)
+\item Obtain ${\bf C}_{n+1}$ orbitals by diagonalizing the DIIS Fock guess ($s_{\rm DIIS}$)
+\end{enumerate}
+This procedure is iterated until the desired convergence thresholds are reached.
+
+\begin{figure}[htbp]
+\begin{center}
+\caption{A RHF computation of "physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set utilizing DIIS convergence.}
+\label{rhf_water_diis}
+{\footnotesize\linespread{1}\normalfont\ttfamily
+\begin{verbatim}
+RHF Iteration   1: Energy = -68.98003273414295   dE = -6.898E+01   dRMS = 1.165E-01
+RHF Iteration   2: Energy = -69.64725442845806   dE = -6.672E-01   dRMS = 1.074E-01 DIIS
+RHF Iteration   3: Energy = -75.79192914624532   dE = -6.144E+00   dRMS = 2.892E-02 DIIS
+RHF Iteration   4: Energy = -75.97218922804181   dE = -1.802E-01   dRMS = 7.564E-03 DIIS
+RHF Iteration   5: Energy = -75.98936905846086   dE = -1.717E-02   dRMS = 8.749E-04 DIIS
+RHF Iteration   6: Energy = -75.98971633493079   dE = -3.472E-04   dRMS = 5.356E-04 DIIS
+RHF Iteration   7: Energy = -75.98979323982247   dE = -7.690E-05   dRMS = 6.212E-05 DIIS
+RHF Iteration   8: Energy = -75.98979567508871   dE = -2.435E-06   dRMS = 1.972E-05 DIIS
+RHF Iteration   9: Energy = -75.98979578301157   dE = -1.079E-07   dRMS = 1.727E-06 DIIS
+\end{verbatim}
+}
+\end{center}
+\end{figure}
+The DIIS convergence procedure is then applied to the "physicist's water molecule" in Fig.~\ref{rhf_water_diis}.
+It should be noted that while DIIS can be utilized on every iteration, the results are equal to pure diagonalization until two error vectors have been constructed.
+Therefore, the first iteration which benefits from DIIS acceleration is iteration three. 
+As can be seen, roughly the same energy convergence is obtained in 9 iterations compared to 24 iterations without DIIS.
+The cost of DIIS itself is negligible; however, the cost of building the gradient is on the order of N$^3$, which is still much less than the Coulomb and Exchange matrix builds.
+
+
+\bibliographystyle{aip.bst}
+\bibliography{references,konrad_references,jrncodes,mainbib-ds}
+
+\end{document}
