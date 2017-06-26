@@ -1,0 +1,91 @@
+%\documentclass[12pt]{article}
+\documentclass[aip,jcp,preprint,superscriptaddress,floatfix]{revtex4-1}
+\usepackage{url,graphicx,tabularx,array,geometry,amsmath,listings}
+\setlength{\parskip}{2ex} %--skip lines between paragraphs
+\setlength{\parindent}{20pt} %--don't indent paragraphs
+
+\setlength{\headheight}{-50pt}
+\setlength{\textheight}{700pt}
+\setlength{\textwidth}{500pt}
+\setlength{\oddsidemargin}{-10pt}
+\setlength{\footskip}{50pt}
+\usepackage{graphicx}% Include figure files
+\usepackage{bm}
+\graphicspath{{./Figures/}}
+
+%-- Commands for header
+\renewcommand{\title}[1]{\textbf{\large{#1}}\\}
+\renewcommand{\line}{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}\hline\\\end{tabularx}\\[-0.5cm]}
+\newcommand{\leftright}[2]{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}#1%
+& #2\\\end{tabularx}\\[-1cm]}
+
+%\linespread{2} %-- Uncomment for Double Space
+\begin{document}
+
+\title{\center{Coulomb and Exchange algorithms}}
+\rule{\textwidth}{1pt}
+\leftright{The Molecular Sciences Software Institute}{Daniel G. A. Smith} %-- left and right positions in the header
+
+\bigskip
+Coulomb and Exchange matrices show up many times in Quantum Mechanics. Several places that they can occur (but not limited to!) are SCF, SCF linear response, SCF Hessians, MP2 gradients, Symmetry-Adapted Perturbation Theory, ... It is therefore quite advantageous to spend time optimizing these algorithms for under various approximations and for specific hardware. As discussed these take the very general form of:
+\begin{eqnarray}
+J[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \nu \lambda \sigma} D_{\lambda \sigma}\\
+K[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \lambda \nu \sigma} D_{\lambda \sigma} 
+\end{eqnarray}
+
+Where $D_{\lambda \sigma}$ can take a great many forms and does not necessarily represent a canonical SCF density.
+
+\section{Density-fitted Coulomb and Exchange algorithms}
+
+With density fitting\cite{Weigend:2002ga, Vahtras:1993db, Dunlap:1979gh, Whitten:1973ju} the two-electron integrals are represented by the following
+\begin{eqnarray}
+g_{\mu \nu \lambda \sigma} \approx \widetilde{(\mu \nu |P)} [J^{-1}]_{PQ} \widetilde{(Q| \lambda \sigma)}
+\end{eqnarray}
+
+where the Coulomb metric $[J]_{PQ}$ and the three center overlap integral $\widetilde{(Q| \lambda \sigma)} $ are defined as
+\begin{eqnarray}
+[J]_{PQ} = \int P({\bf r}_1) \frac{1}{{\bf r}_{12}}Q({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2\\
+\widetilde{(Q| \lambda \sigma)} = \int Q({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2
+\end{eqnarray}
+
+To simplify the density fitting notation, the inverse Coulomb metric is typically folded into the three center overlap tensor
+\begin{align}
+(P| \lambda \sigma) &= [J^{-\frac{1}{2}}]_{PQ} \widetilde{(Q| \lambda \sigma)}\\
+g_{\mu \nu \lambda \sigma} &\approx (\mu \nu |P) (P| \lambda \sigma)
+\end{align}
+
+The Coulomb matrix can then be computed in $\mathcal{O}($N$^2$N$_{aux}$) operations:
+\begin{align}
+\chi_P &= (P| \lambda \sigma) D_{ \lambda \sigma} \\
+J[D_{ \lambda \sigma}]_{\mu \nu} &= (\mu \nu |P) \chi_P
+\end{align}
+
+The Exchange matrix can be computed in $\mathcal{O}($N$^3$N$_{aux}$) operations:
+\begin{align}
+\zeta_{P \nu\lambda} &= (P| \nu \sigma) D_{ \lambda \sigma} \\
+K[D_{ \lambda \sigma}]_{\mu \nu} &= (\mu \lambda |P) \zeta_{P\nu\lambda} 
+\end{align}
+
+however, considering the form of the density matrix, we can reduce this to $\mathcal{O}(p$N$^2$N$_{aux}$)
+\begin{align}
+D_{\lambda \sigma} &= C_{p\sigma}C_{p\lambda}\\
+\zeta^1_{P \mu p} &= (\mu \sigma | P) C_{ p \sigma} \\
+\zeta^2_{P \nu p} &= (P| \nu \lambda) C_{ p \lambda} \\
+K[D_{ \lambda \sigma}]_{\mu \nu} &= \zeta^1_{P \mu p} \zeta^2_{P \nu p}
+\end{align}
+where $p$ is a generalized MO index that can span any space.
+This technique is especially beneficial when $p$ is an inactive or active index as these are typically small relative to the full N space.
+It should be noted that Eqs. 10-13 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
+The $C_{p\sigma} \neq C_{p\lambda}$ case often arises in SCF theory when either rotated, transition, or generalized density matrices are used.
+
+Computation of the Coulomb and Exchange matrices through conventional means costs N$^4$, here we see that Coulomb builds are rank reduced, but Exchange builds are of the same rank.
+The real benefit of density-fitted integrals for $K$ builds comes from data locality and data storage.
+As N$_{aux}$ is typically twice the size of $N$, we can imagine a case with 3000 AO basis functions.
+Conventional 4-index two-electron integrals would use 81 TB if the 8-fold symmetry of the tensor is exploited, on the other hand, the 3-index density-fitted tensor would only take up 216 GB if the 2-fold symmetry is exploited, a reduction of 375 fold.
+
+
+
+\bibliographystyle{aip.bst}
+\bibliography{references,konrad_references,jrncodes,mainbib-ds}
+
+\end{document}

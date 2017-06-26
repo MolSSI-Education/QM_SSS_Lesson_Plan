@@ -109,6 +109,7 @@ timer.dat
 *.aux
 *.synctex.gz
 *.blg
+*Notes.bib
 
 # Mac
 *.DS_Store
