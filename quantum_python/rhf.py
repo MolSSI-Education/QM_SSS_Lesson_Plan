@@ -13,6 +13,7 @@ class RHF(object):
 
         # Integral generation from Psi4's MintsHelper
         start_time = time.time()
+        self.basis_name = basis
         self.molecule = molecule
         self.basis = pc.BasisSet.build(self.molecule, "ORBITAL", basis)
         self.mints = pc.MintsHelper(self.basis)
@@ -124,4 +125,5 @@ class RHF(object):
 
         print('Final SCF energy: %.8f hartree' % SCF_E)
 
+        self.SCF_E = SCF_E
         return SCF_E
