@@ -114,3 +114,12 @@ timer.dat
 # Mac
 *.DS_Store
 *.swp
+
+# CMake
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles*
+Makefile
+
+# Random Testing
+test.py
