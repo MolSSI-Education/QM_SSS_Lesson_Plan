@@ -29,11 +29,11 @@ install:
 
   - conda create -q -n p4env python=$PYTHON_VER psi4 scipy -c psi4
   - source activate p4env
+  - conda install cmake
   - conda list
 
-  - pip install --upgrade pip setuptools
-
 # Install various required modules
+  - pip install --upgrade pip setuptools
   - pip install pytest pytest-cov
   - pip install codecov
 
