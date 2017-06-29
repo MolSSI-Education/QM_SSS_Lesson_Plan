@@ -7,9 +7,12 @@ sudo: false
 
 matrix:
   include:
-    - python: 2.7
-    - python: 3.5
-    - python: 3.6
+  - os: linux
+    env:
+      - PYTHON_VER='3.5'
+  - os: linux
+    env:
+      - PYTHON_VER='2.7'
 
 before_install:
 
@@ -19,12 +22,16 @@ before_install:
   - df -h
   - ulimit -a
   - python -V
+
+  - conda create -q -n p4env python=$PYTHON_VER psi4 scipy -c psi4
+  - source activate p4env
+  - conda list
+
   - pip install --upgrade pip setuptools
 
 # Install various required modules
   - pip install pytest pytest-cov
   - pip install codecov
-  - pip install numpy
 
 # Install the plugin locally
   - pip install -e .
