@@ -40,6 +40,9 @@ install:
 # Install the plugin locally
   - pip install -e .
 
+# Build the C++
+  - python setup.py cmake
+
 before_script:
   - uname -a
   - free -m

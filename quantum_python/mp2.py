@@ -2,6 +2,7 @@ import time
 import numpy as np
 import psi4.core as pc
 
+
 class MP2(object):
     def __init__(self, wfn):
 
@@ -15,7 +16,6 @@ class MP2(object):
         self.eps = wfn.eps
         self.C = wfn.C
         self.SCF_E = wfn.SCF_E
-
 
     def compute_energy(self):
 

@@ -6,7 +6,7 @@ from . import jk
 
 
 class RHF(object):
-    def __init__(self, molecule, basis, numpy_memory=2.e9, scf_type="PK"):
+    def __init__(self, molecule, basis, numpy_memory=2.e9, scf_type="PK", use_c=False):
 
         # Set defaults
         maxiter = 40
@@ -49,7 +49,7 @@ class RHF(object):
         self.V = np.asarray(self.mints.ao_potential())
         self.T = np.asarray(self.mints.ao_kinetic())
         # self.I = np.asarray(self.mints.ao_eri())
-        self.JK = jk.build_JK(self.molecule, self.basis_name, scf_type)
+        self.JK = jk.build_JK(self.molecule, self.basis_name, scf_type, use_c)
 
         self.Enuc = self.molecule.nuclear_repulsion_energy()
 
@@ -80,8 +80,6 @@ class RHF(object):
 
     def build_fock(self, D):
         # Build Fock matrix
-        # J = np.einsum('pqrs,rs->pq', self.I, D)
-        # K = np.einsum('prqs,rs->pq', self.I, D)
         J, K = self.JK.compute_JK([self.Cocc])
         self.F = self.H + J[0] * 2 - K[0]
         return self.F
@@ -111,8 +109,8 @@ class RHF(object):
             SCF_E = np.einsum('pq,pq->', self.F + self.H, self.D) + self.Enuc
             dRMS = np.mean(diis_e**2)**0.5
 
-            print('SCF Iteration %3d: Energy = %4.16f   dE = % 1.5E   dRMS = %1.5E' % (SCF_ITER, SCF_E,
-                                                                                       (SCF_E - Eold), dRMS))
+            print('SCF Iteration %3d: Energy = %4.16f   dE = % 1.5E   dRMS = %1.5E' % (SCF_ITER, SCF_E, (SCF_E - Eold),
+                                                                                       dRMS))
             if (abs(SCF_E - Eold) < E_conv) and (dRMS < D_conv):
                 break
 

@@ -7,8 +7,8 @@ For simplicity this will use Psi4's Cache to make detection extremely simple
 """
 
 import setuptools
-import distutils
-import distutils.spawn as ds
+from setuptools.command.install import install
+
 import os
 import subprocess as sp
 
@@ -19,22 +19,23 @@ except ImportError:
                       "that this setup script can detect Psi4's CMake dependency trees.\n"
                       "Please run the following conda command: 'conda install psi4 -c psi4'")
 
-class cmake_build(distutils.cmd.Command):
+class cmake_build(install):
 
-    description = 'Build the nested CMake project'
-    user_options = [
-#      # The format is (long option, short option, description).
-#        ('pylint-rcfile=', None, 'path to Pylint config file'),
-    ]
-
-    def initialize_options(self):
-      """Set default values for options."""
-      # Each user option must be listed here with their default value.
-  
-    def finalize_options(self):
-      """Post-process options."""
+#    description = 'Build the nested CMake project'
+#    user_options = [
+##      # The format is (long option, short option, description).
+##        ('pylint-rcfile=', None, 'path to Pylint config file'),
+#    ]
+#
+#    def initialize_options(self):
+#      """Set default values for options."""
+#      # Each user option must be listed here with their default value.
+#  
+#    def finalize_options(self):
+#      """Post-process options."""
 
     def run(self):
+        print("here")
 
         # Find build directory (in-place)
         abspath = os.path.abspath(os.path.dirname(__file__))
@@ -89,8 +90,8 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
         ],
-        zip_safe=True,
-    cmdclass={
-        'cmake': cmake_build,
-    },
+        zip_safe=False,
+        cmdclass={
+            'cmake': cmake_build,
+        },
     )
