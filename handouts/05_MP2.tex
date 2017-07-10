@@ -1,0 +1,68 @@
+%\documentclass[12pt]{article}
+\documentclass[aip,jcp,preprint,superscriptaddress,floatfix]{revtex4-1}
+\usepackage{url,graphicx,tabularx,array,geometry,amsmath,listings}
+\setlength{\parskip}{2ex} %--skip lines between paragraphs
+\setlength{\parindent}{20pt} %--don't indent paragraphs
+
+\setlength{\headheight}{-50pt}
+\setlength{\textheight}{700pt}
+\setlength{\textwidth}{500pt}
+\setlength{\oddsidemargin}{-10pt}
+\setlength{\footskip}{50pt}
+\usepackage{graphicx}% Include figure files
+\usepackage{bm}
+\graphicspath{{./Figures/}}
+
+%-- Commands for header
+\renewcommand{\title}[1]{\textbf{\large{#1}}\\}
+\renewcommand{\line}{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}\hline\\\end{tabularx}\\[-0.5cm]}
+\newcommand{\leftright}[2]{\begin{tabularx}{\textwidth}{X>{\raggedleft}X}#1%
+& #2\\\end{tabularx}\\[-1cm]}
+
+%\linespread{2} %-- Uncomment for Double Space
+\begin{document}
+
+\title{\center{Second-order M\o{}ller-Plesset Perturbation Theory (MP2)}}
+\rule{\textwidth}{1pt}
+\leftright{The Molecular Sciences Software Institute}{Daniel G. A. Smith} %-- left and right positions in the header
+
+\bigskip
+\section{Canonical MP2}
+For a canonical RHF reference the MP2 equations are rather straightforwardly,
+
+\begin{equation} \label{eq:mp2} E_{\mathrm{MP2}} = 2 \frac{ (ia|jb) (ia|jb) } {
+\epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} } - \frac{ (ia|jb)
+(ib|ja) } { \epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} }
+\end{equation}
+
+The rate-limiting step of MP2 is the four-index transformation of the ERI tensor from atomic to molecular orbitals,
+\begin{equation}
+(ia|jb) = C_{\mu i} C_{\nu a} (\mu\nu|\lambda\sigma) C_{\lambda j} C_{\sigma b}
+\end{equation}
+
+If this is performed in a single step this cost is  $\mathcal{O}$N$^8$! However, factoring this However, factoring this transformation leads to rather straightforward intermediates and the overall contraction scales as $\mathcal{O}$N$^5$ as seen below,
+
+\begin{equation}
+\begin{split}
+(i\nu|\lambda\sigma) &\leftarrow C_{\mu i} (\mu \nu | \lambda \sigma) \\
+(i\nu|j\sigma) &\leftarrow C_{\lambda j} (i \nu | \lambda \sigma) \\
+(ia|j\sigma) &\leftarrow C_{\nu a} (i \nu | j \sigma) \\
+(ia|jb) &\leftarrow C_{\sigma b} (ia|j \sigma) \\
+\end{split}
+\end{equation}
+
+Notice the order of occupied indices and then virtual indices, as the virtual index is generally much larger than the occupied one this ordering is quite important for performance.
+
+\section{Density-Fitted MP2}
+
+Recall
+\begin{equation}
+\label{eq:dferi}
+g_{\mu \nu \lambda \sigma} \approx (\mu \nu |P) (P| \lambda \sigma)
+\end{equation}
+
+
+\bibliographystyle{aip.bst}
+\bibliography{references,konrad_references,jrncodes,mainbib-ds}
+
+\end{document}
