@@ -1,16 +1,12 @@
 <p align="center">
-
 <!--Travis-->
 <a href="https://travis-ci.org/dgasmith/QM_SSS_Lesson_Plan"><img src="https://travis-ci.org/dgasmith/QM_SSS_Lesson_Plan.svg?branch=master"></a>
-
 <!--CodeCov-->
 <a href="https://codecov.io/gh/dgasmith/QM_SSS_Lesson_Plan">
   <img src="https://codecov.io/gh/dgasmith/QM_SSS_Lesson_Plan/branch/master/graph/badge.svg" alt="Codecov" />
 </a>
-
 <!--License-->
 <a href="https://opensource.org/licenses/LGPL-3.0"> <img src="https://img.shields.io/github/license/dgasmith/QM_SSS_Lesson_Plan.svg" /></a>
-
 </p>
 
 # QM_SSS_Lesson_Plan
