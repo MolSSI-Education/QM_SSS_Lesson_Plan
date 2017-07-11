@@ -44,8 +44,8 @@ g_{\mu \nu \lambda \sigma} \approx \widetilde{(\mu \nu |P)} [J^{-1}]_{PQ} \widet
 
 where the Coulomb metric $[J]_{PQ}$ and the three center overlap integral $\widetilde{(Q| \lambda \sigma)} $ are defined as
 \begin{eqnarray}
-[J]_{PQ} = \int P({\bf r}_1) \frac{1}{{\bf r}_{12}}Q({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2\\
-\widetilde{(Q| \lambda \sigma)} = \int Q({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2
+[J]_{PQ} = \int P({\bf r}_1) \frac{1}{{\bf r}_{12}}Q({\bf r}_2)d{\bf r}_1d{\bf r}_2\\
+\widetilde{(Q| \lambda \sigma)} = \int Q({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d{\bf r}_1d{\bf r}_2
 \end{eqnarray}
 
 To simplify the density fitting notation, the inverse Coulomb metric is typically folded into the three center overlap tensor
@@ -75,7 +75,7 @@ K[D_{ \lambda \sigma}]_{\mu \nu} &= \zeta^1_{P \mu p} \zeta^2_{P \nu p}
 \end{align}
 where $p$ is a generalized MO index that can span any space.
 This technique is especially beneficial when $p$ is an inactive or active index as these are typically small relative to the full N space.
-It should be noted that Eqs. 10-13 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
+It should be noted that Eqs. 12-15 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
 The $C_{p\sigma} \neq C_{p\lambda}$ case often arises in SCF theory when either rotated, transition, or generalized density matrices are used.
 
 Computation of the Coulomb and Exchange matrices through conventional means costs N$^4$, here we see that Coulomb builds are rank reduced, but Exchange builds are of the same rank.

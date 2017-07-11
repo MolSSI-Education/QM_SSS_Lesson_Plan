@@ -32,10 +32,10 @@
 
 There exist many ways to label and describe quantum chemistry theories.
 In this section the quantities and indices used will be defined and outlined.
-Generalized multidimensional arrays will be referred to as "tensors" and two dimensional arrays will be referred to as "matrices".
+Generalized multidimensional arrays will be referred to as ``tensors" and two dimensional arrays will be referred to as ``matrices".
 
 \subsection{Einstein summation notation}
-The generalized Einstein summation notation will be employed where repeated indices on the right hand side (RHS) that do not appear on left hand side (LHS) are assumed to be summed over.
+The generalized Einstein summation notation will be employed where repeated indices on the right-hand side (RHS) that do not appear on left-hand side (LHS) are assumed to be summed over.
 A matrix-matrix multiplication example:
 \begin{align}
 {\rm Matrix\; convention:\; }\;\;\bf{C} &= \bf{A}\bf{B}\\
@@ -43,7 +43,7 @@ A matrix-matrix multiplication example:
 {\rm Einstein\; summation:\;} C_{ij} &= A_{ik} B_{kj}
 \end{align}
 
-an outer product example
+The ``generalized" part of the Einsum summation notation is when the LHS can modify the overall contraction. Consider the following outer product (the intermediate of the dot product above),
 \begin{align}
 C_{ikj} &= A_{ik} B_{kj}
 \end{align}
@@ -55,9 +55,9 @@ Occasionally indices will be redefined, but it should be clear in the context wh
 
 \begin{itemize} \itemsep1pt \parskip0pt \parsep0pt
 \item \makebox[10cm]{General atomic orbitals\hfill}                        $\mu, \nu, \lambda, \sigma$  
-\item \makebox[10cm]{Inactive (doubly occupied) molecular orbitals\hfill}      i, j, k, l
-\item \makebox[10cm]{Unoccupied (virtual) molecular orbitals \hfill}           a, b, c, d
-\item \makebox[10cm]{General index molecular orbitals\hfill}                   p, q, r, s, m, n, o
+\item \makebox[10cm]{Inactive (doubly occupied) molecular orbitals\hfill}      $i, j, k, l$
+\item \makebox[10cm]{Unoccupied (virtual) molecular orbitals \hfill}           $a, b, c, d$
+\item \makebox[10cm]{General index molecular orbitals\hfill}                   $p, q, r, s, m, n, o$
 \end{itemize}
 \bigskip
 
@@ -69,7 +69,7 @@ Common matrices and tensors utilized in this work.
 \item \makebox[8cm]{Molecular orbital coefficient matrix\hfill}   $C_{p\mu}$
 \item \makebox[8cm]{Overlap matrix\hfill}   $S_{\mu\nu}$
 \item \makebox[8cm]{SCF one-particle density matrix\hfill}   $D_{pq}$
-\item \makebox[8cm]{Atomic-orbital two-electron integral\hfill}    $g_{\mu\nu\lambda \sigma}$ =  $\int \mu({\bf r}_1) \nu({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d^3{\bf r}_1d^3{\bf r}_2$
+\item \makebox[8cm]{Atomic-orbital two-electron integral\hfill}    $g_{\mu\nu\lambda \sigma}$ =  $\int \mu({\bf r}_1) \nu({\bf r}_1)\frac{1}{r_{12}} \lambda({\bf r}_2) \sigma({\bf r}_2)d{\bf r}_1d{\bf r}_2$
 \end{itemize}
 
 \section{Self Consistent Field}
@@ -132,7 +132,7 @@ At every iteration we construct our Fock matrix from the previous orbitals ({\bf
 
 \begin{figure}[htbp]
 \begin{center}
-\caption{A RHF computation of "physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set. dE is the energy difference between iterations and dRMS is the root mean square of the orbital gradient.}
+\caption{A RHF computation of ``physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set. dE is the energy difference between iterations and dRMS is the root mean square of the orbital gradient.}
 \label{rhf_water}
 {\footnotesize\linespread{1}\normalfont\ttfamily
 \begin{verbatim}

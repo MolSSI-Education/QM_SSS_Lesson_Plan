@@ -39,24 +39,24 @@ Let us assume that we have generated several state vectors ($s$) with a series o
 For DIIS to be applicable, we assume that both the next residual and the next state vector can be built as a linear combination of previous guess vectors with coefficients $c$.
 \begin{eqnarray}
 \label{diis_truths} 
-s_{i+1} = \sum_{i}^{n} c_is_i\\
-r_{i+1} = \sum_{i}^{n} c_ir_i\\
+s_{n+1} = \sum_{i}^{n} c_is_i\\
+r_{n+1} = \sum_{i}^{n} c_ir_i\\
 \sum_{i}^{n} c_i = 1
 \end{eqnarray}
 Therefore, we want to select the coefficients in a manner that minimizes the norm of the residual
 
 \begin{eqnarray}
 \label{diis_min} 
-r_{i+1}\cdot r_{i+1} = \sum_{ij}^{n}c_ic_j(r_i \cdot r_j)
+r_{n+1}\cdot r_{n+1} = \sum_{ij}^{n}c_ic_j(r_i \cdot r_j)
 \end{eqnarray}
 
 This can be solved through the following matrix equations
 \begin{eqnarray}
 \begin{bmatrix}
- B_{11}&   B_{12}&  ...& B_{1n} & -1\\ 
-  B_{21}&   B_{22}&  ...& B_{2n} & -1\\ 
+ B_{11}&   B_{12}&  ...& B_{1i} & -1\\ 
+  B_{21}&   B_{22}&  ...& B_{2i} & -1\\ 
  ...&  ...&  ...&  ...& ...\\ 
-  B_{n1}&  B_{n2}&  ...&   B_{nn}& -1\\ 
+  B_{i1}&  B_{i2}&  ...&   B_{ii}& -1\\ 
  -1& -1 & ... &  -1& 0
 \end{bmatrix}
 \begin{bmatrix}
