@@ -15,11 +15,7 @@ matrix:
       - PYTHON_VER='2.7'
 
 install:
-  - if [[ "$PYTHON_VER" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -27,7 +23,7 @@ install:
   - conda update -q conda
   - conda info -a
 
-  - conda create -q -n p4env python=$PYTHON_VER psi4 scipy -c psi4/label/dev -c psi4
+  - conda create -q -n p4env python=$PYTHON_VER psi4-ci scipy -c psi4/label/dev -c psi4
   - source activate p4env
   - conda install cmake
   - conda list
