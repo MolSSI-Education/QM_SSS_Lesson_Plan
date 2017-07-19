@@ -35,7 +35,6 @@ class cmake_build(install):
 #      """Post-process options."""
 
     def run(self):
-        print("here")
 
         # Find build directory (in-place)
         abspath = os.path.abspath(os.path.dirname(__file__))
@@ -44,9 +43,9 @@ class cmake_build(install):
         print(">>> cd {}".format(build_path))
 
         # Capture cmake command 
-        print("Aquiring CMake cache...")
+        print("Acquiring CMake cache...")
         output = sp.check_output(["psi4", "--plugin-compile"]).decode("UTF-8")
-        print(">>> psi4 --plugin-compile")
+        print(">>> psi4 --plugin-compile\n{}".format(output))
         if "cmake -C" not in output:
             raise Exception("Psi4 Cache Error. Output as follows:\n" + output.decode("UTF-8"))
 
