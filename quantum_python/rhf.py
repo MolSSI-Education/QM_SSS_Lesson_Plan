@@ -1,8 +1,8 @@
 import time
 import numpy as np
-import psi4.core as pc
 
 from . import jk
+import psi4.core as pc
 
 
 class RHF(object):

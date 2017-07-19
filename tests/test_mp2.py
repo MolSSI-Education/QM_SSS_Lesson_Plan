@@ -4,8 +4,8 @@ Unit and regression test for the MP2 classes.
 
 # Import our module and shorten the name
 
-import psi4
 import quantum_python as qp
+import psi4
 import pytest
 
 def test_mp2_water():
