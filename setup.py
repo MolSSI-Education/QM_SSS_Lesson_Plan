@@ -41,22 +41,26 @@ class cmake_build(install):
         abspath = os.path.abspath(os.path.dirname(__file__))
         build_path = os.path.join(abspath, "quantum_python", "core")
         os.chdir(build_path)
+        print(">>> cd {}".format(build_path))
 
         # Capture cmake command 
         print("Aquiring CMake cache...")
         output = sp.check_output(["psi4", "--plugin-compile"]).decode("UTF-8")
+        print(">>> psi4 --plugin-compile")
         if "cmake -C" not in output:
             raise Exception("Psi4 Cache Error. Output as follows:\n" + output.decode("UTF-8"))
 
         # Run CMake command
         print("Building CMake structures...")
         output = sp.check_output(output.strip().split()).decode("UTF-8")
+        print("{}".format(output))
         if "Build files have been" not in output:
             raise Exception("CMake error. Output as follows:\n" + output)
 
         # Run install
         print("Compiling...")
         output = sp.check_output(["make", "-j2"]).decode("UTF-8")
+        print(">>> make -j2\n{}".format(output))
         if "[100%]" not in output:
             raise Exception("Build error. Output as follows:\n" + output)
 
