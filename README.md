@@ -26,8 +26,8 @@ The following tools will be used:
 To run the test suite please first run `pip install -e .` in the base
 repository folder. This will register this repository with your local Python so
 that `import quantum_python` will work in any directory. Tests can then be run
-with `py.test -v`. If `pytest` is not found please use `pip install pytest` to
-aquire the module.
+with `py.test -v`. If `pytest` is not found please use `pip install pytest` or
+`conda install pytest` to acquire the module.
 
 
 
