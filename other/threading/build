@@ -1,0 +1,1 @@
+g++ -fopenmp thread_test.cpp -Wl,-rpath,${CONDA_PREFIX}/lib/ -o thread_test
