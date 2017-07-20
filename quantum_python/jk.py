@@ -2,11 +2,11 @@
 A file for JK builders.
 """
 
-from . import core
 
 import time
 import numpy as np
 import psi4.core as pc
+from . import core
 
 
 

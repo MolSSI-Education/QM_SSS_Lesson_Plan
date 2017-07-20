@@ -47,21 +47,42 @@ class cmake_build(install):
         output = sp.check_output(["psi4", "--plugin-compile"]).decode("UTF-8")
         print(">>> psi4 --plugin-compile\n{}".format(output))
         if "cmake -C" not in output:
-            raise Exception("Psi4 Cache Error. Output as follows:\n" + output.decode("UTF-8"))
+            raise Exception("Psi4 Cache Error.\n")
 
         # Run CMake command
         print("Building CMake structures...")
         output = sp.check_output(output.strip().split()).decode("UTF-8")
         print("{}".format(output))
         if "Build files have been" not in output:
-            raise Exception("CMake error. Output as follows:\n" + output)
+            raise Exception("CMake error.\n")
 
         # Run install
         print("Compiling...")
-        output = sp.check_output(["make", "-j2"]).decode("UTF-8")
-        print(">>> make -j2\n{}".format(output))
-        if "[100%]" not in output:
-            raise Exception("Build error. Output as follows:\n" + output)
+        output = sp.check_output(["make", "-j2"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
+        print_out = []
+
+        # Cut out a few warnings that are a bit annoying, GCC wont let us override them
+        warnings = [' warning: section "__textcoal_nt"',
+                    'note: change section name to "__const"', 
+                    'change section name to "__text"',
+                    'note: change section name to "__data"',
+                    ' warning: section "__datacoal_nt"',
+                    'warning: section "__const_coal"']
+        x = 0
+        while x < len(output):
+
+            if any(warn in output[x] for warn in warnings):
+                x += 3
+                continue
+
+            print_out.append(output[x])
+            x += 1
+    
+        print_out = "\n".join(print_out) 
+        print(">>> make -j2\n{}".format(print_out))
+
+        if "[100%]" not in print_out:
+            raise Exception("Build error.\n")
 
 if __name__ == "__main__":
     setuptools.setup(
