@@ -63,6 +63,39 @@ class cmake_build(install):
         if "[100%]" not in output:
             raise Exception("Build error. Output as follows:\n" + output)
 
+class lawrap_build(install):
+
+    def run(self):
+
+        # Find build directory (in-place)
+        abspath = os.path.abspath(os.path.dirname(__file__))
+        build_path = os.path.join(abspath, "lawrap_tests")
+        os.chdir(build_path)
+        print(">>> cd {}".format(build_path))
+
+        # Run CMake command
+        print("Building CMake structures...")
+        output = sp.check_output(["cmake", "-H.", "-Bbuild"]).decode("UTF-8")
+        #output = sp.check_output(["cmake", "-H.", "-Bbuild", "-DLAWrap_DIR=/Users/loriab/linux/lawrap/lawrap-install/share/cmake/LAWrap"]).decode("UTF-8")
+        print(">>> cmake -H. -Bbuild\n{}".format(output))
+        if "Build files have been" not in output:
+            raise Exception("CMake error. Output as follows:\n" + output)
+
+        # Run install
+        print("Compiling...")
+        os.chdir('build')
+        output = sp.check_output(["make", "-j2"]).decode("UTF-8")
+        print(">>> make -j2\n{}".format(output))
+        if "[100%]" not in output:
+            raise Exception("Build error. Output as follows:\n" + output)
+
+        # Run test
+        print("Testing...")
+        output = sp.check_output(["./test_cxx"]).decode("UTF-8")
+        print(">>> ./test_cxx\n{}".format(output))
+#        if "[100%]" not in output:
+#            raise Exception("Build error. Output as follows:\n" + output)
+
 if __name__ == "__main__":
     setuptools.setup(
         name='quantum_python',
@@ -96,5 +129,6 @@ if __name__ == "__main__":
         zip_safe=False,
         cmdclass={
             'cmake': cmake_build,
+            'lawrap': lawrap_build,
         },
     )
