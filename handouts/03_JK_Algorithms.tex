@@ -38,6 +38,28 @@ Where $D_{\lambda \sigma}$ can take a great many forms and does not necessarily 
 
 \section{The PK Supermatrix algorithms}
 
+The PK Supermatrix algorithm\cite{Raffenetti:1973:335} effectively attempts to align the data of ERI tensors to that of the underlying density. In essence,
+ \begin{eqnarray}
+J[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \nu \lambda \sigma} D_{\lambda \sigma}\\
+K[D_{\lambda \sigma}]_{\mu \nu} =   g^k_{\mu  \nu \lambda\sigma} D_{\lambda \sigma} \\
+g^k_{\mu  \nu \lambda\sigma} = g_{\mu \nu \lambda \sigma} 
+ \end{eqnarray}
+
+Where the $g^k$ tensor is a permuted form of $g$ so that when building the K matrix the data is aligned.
+Please note we will talk a great deal about alignment in the C++ section of the course.
+
+At this point we have effectively doubled the space of our ERI tensor as the $g^k$ tensor needs to be stored as well. We need to explain one more curiosity of the $g$ tensor for this particular method to gain a good deal of needed. Consider that the ERI tensor has the following symmetry,
+ \begin{eqnarray}
+ g_{\mu \lambda \nu \sigma} \equiv g_{\mu \lambda \sigma \nu} \equiv
+  g_{\lambda\mu \nu \sigma} \equiv g_{\lambda\mu \sigma \nu} \equiv
+   g_{ \nu \sigma\mu \lambda} \equiv g_{ \sigma \nu\mu \lambda} \equiv
+  g_{ \nu \sigma\lambda\mu} \equiv g_{ \sigma \nu\lambda\mu}
+ \end{eqnarray}
+ 
+In the NumPy based formalism presented it is difficult to exploit the full 8-fold symmetry of the ERI tensor; however, do try to exploit some of the symmetry.
+A particularly useful function is the $numpy.triu_indices$ for acquiring and indexing the lower triangular part of the ERI tensor.
+Do not forget to consider that the student working on SCF response will have a non-symmetric density.
+
 \section{Density-fitted Coulomb and Exchange algorithms}
 
 \subsection{Theory}
@@ -82,7 +104,7 @@ K[D_{ \lambda \sigma}]_{\mu \nu} &= \zeta^1_{P \mu p} \zeta^2_{P \nu p}
 \end{align}
 where $p$ is a generalized MO index that can span any space.
 This technique is especially beneficial when $p$ is an inactive or active index as these are typically small relative to the full N space.
-It should be noted that Eqs. 12-15 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
+It should be noted that Eqs. 16-19 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
 The $C_{p\sigma} \neq C_{p\lambda}$ case often arises in SCF theory when either rotated, transition, or generalized density matrices are used.
 
 \subsection{Benefits}
@@ -103,7 +125,7 @@ First we need to build our basis sets and MintsHelper object,
 # Get orbital basis from a Wavefunction object
 orb = wfn.basisset()
 
-# The auxiliary basis set
+# Build the complementary JKFIT basis for the aug-cc-pVDZ basis (for example)
 aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other="aug-cc-pVDZ")
 
 # The zero basis set
