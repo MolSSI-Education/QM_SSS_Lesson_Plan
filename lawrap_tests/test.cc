@@ -1,32 +1,30 @@
+#include <vector>
+#include <cstdio>
+
 #include <lawrap/blas.h>
 #include <lawrap/lapack.h>
 
 int main()
 {
-   using namespace LAWrap;
-
-    double w[10];
-   //const double * A, * B, * C, * w;
-   //double A[10][10], B[10][10], C[10][10], w[10];
-  double *A = new double[100];
-  double *B = new double[100];
-  double *C = new double[100];
+    std::vector<double> w(10);
+    std::vector<double> A(100), B(100), C(100);
  
-  for(int i = 0; i < 100; i++) A[i] = i*i;
+    for (int i = 0;i < 10;i++)
+    {
+        for (int j = 0;j < 10;j++)
+        {
+            A[i*10 + j] = i+j;
+            B[i*10 + j] = 1;
+        }
+    }
 
-   //for (int i = 0;i < 10;i++)
-   //{
-   //    for (int j = 0;j < 10;j++)
-   //    {
-   //        A[i][j] = i+j;
-   //        B[i][j] = 1;
-   //    }
-   //}
+    LAWrap::gemm('N', 'T', 10, 10, 10,
+                 2.0, A.data(), 10,
+                      B.data(), 10,
+                 0.0, C.data(), 10);
+   
+    int info = heev('V', 'U', 10, A.data(), 10, w.data());
+    printf("info %d\n", info);
 
-   LAWrap::gemm('N', 'T', 10, 10, 10, 2.0, A, 10, B, 10, 0.0, C, 10);
-   int info = heev('V', 'U', 10, A, 10, w);
-   printf("info %d\n", info);
-
-   return info;
+    return info;
 }
-
