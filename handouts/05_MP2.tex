@@ -30,9 +30,17 @@
 \section{Canonical MP2}
 For a canonical RHF reference the MP2 equations are rather straightforwardly,
 
-\begin{equation} \label{eq:mp2} E_{\mathrm{MP2}} = 2 \frac{ (ia|jb) (ia|jb) } {
-\epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} } - \frac{ (ia|jb)
-(ib|ja) } { \epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} }
+\begin{equation} \label{eq:mp2} E_{\mathrm{MP2}} = \frac{ (ia|jb) (ia|jb) } {
+\epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} } - \frac{ [(ia|jb) - (ib|ja)]
+(ia|jb) } { \epsilon_{i} + \epsilon_{j} - \epsilon_{a} - \epsilon_{b} }
+\end{equation}
+
+Where the first term is often noted as the opposite-spin (OS) term while the second, the same-spin (SS) term.
+Its worth thinking about why these are labeled in this way, and why the same-spin term has an exchange-like component to it.
+There is also a variant of MP2 which attempts to correct for the MP2 errors by scaling the spin term separately, this is denoted as spin-component scaled MP2 (SCS-MP2)\cite{Grimme:2003:9095}.
+The following parameters are often used,
+\begin{equation}
+E_{SCS-MP2} = \frac{1}{3} E_{MP2-SS}  +\frac{6}{5}  E_{MP2-OS}
 \end{equation}
 
 The rate-limiting step of MP2 is the four-index transformation of the ERI tensor from atomic to molecular orbitals,
@@ -55,12 +63,31 @@ Notice the order of occupied indices and then virtual indices, as the virtual in
 
 \section{Density-Fitted MP2}
 
-Recall
+The density-fitted discussion in the JK algorithm notes recall,
 \begin{equation}
 \label{eq:dferi}
 g_{\mu \nu \lambda \sigma} \approx (\mu \nu |P) (P| \lambda \sigma)
 \end{equation}
 
+At this point is would be trivial to reform the $(ia|jb)$ tensor; while this would be slightly cheaper than the
+direct transformation of the 4-index integral above we would still create a large matrix in memory which is best avoided. 
+
+A better approach would be to build small blocks of the $(ia|jb)$ tensor at a time. Consider the following pseudocode,
+
+\begin{verbatim}
+for i in range(ndocc):
+    for j in range(i, ndocc):
+          I_ab <- iaQ jbQ
+\end{verbatim}
+
+In the above we only build a single block of virtual by virtual integrals which can than be contracted into the energy. This is one of the primary benefits of density-fitted MP2 builds.
+
+Unlike the JK example previous you want to use a different fitting basis, in this case the RIFIT which has been optimized to recover MP2-like energies rather than the JK like properties used previously.
+
+\begin{verbatim}
+# Build the complementary RIFIT basis for the aug-cc-pVDZ basis (for example)
+psi4.core.BasisSet.build(mol, fitrole="RIFIT", other="aug-cc-pVDZ")
+\end{verbatim}
 
 \bibliographystyle{aip.bst}
 \bibliography{references,konrad_references,jrncodes,mainbib-ds}
