@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-This is a setup script for install a python project with a CMake dependency. 
+This is a setup script for install a python project with a CMake dependency.
 
 For simplicity this will use Psi4's Cache to make detection extremely simple
 """
@@ -11,6 +11,7 @@ from setuptools.command.install import install
 
 import os
 import subprocess as sp
+import shutil
 
 try:
     import psi4
@@ -30,7 +31,7 @@ class cmake_build(install):
 #    def initialize_options(self):
 #      """Set default values for options."""
 #      # Each user option must be listed here with their default value.
-#  
+#
 #    def finalize_options(self):
 #      """Post-process options."""
 
@@ -42,7 +43,7 @@ class cmake_build(install):
         os.chdir(build_path)
         print(">>> cd {}".format(build_path))
 
-        # Capture cmake command 
+        # Capture cmake command
         print("Acquiring CMake cache...")
         output = sp.check_output(["psi4", "--plugin-compile"]).decode("UTF-8")
         print(">>> psi4 --plugin-compile\n{}".format(output))
@@ -63,7 +64,7 @@ class cmake_build(install):
 
         # Cut out a few warnings that are a bit annoying, GCC wont let us override them
         warnings = [' warning: section "__textcoal_nt"',
-                    'note: change section name to "__const"', 
+                    'note: change section name to "__const"',
                     'change section name to "__text"',
                     'note: change section name to "__data"',
                     ' warning: section "__datacoal_nt"',
@@ -77,12 +78,38 @@ class cmake_build(install):
 
             print_out.append(output[x])
             x += 1
-    
-        print_out = "\n".join(print_out) 
+
+        print_out = "\n".join(print_out)
         print(">>> make -j2\n{}".format(print_out))
 
         if "[100%]" not in print_out:
             raise Exception("Build error.\n")
+
+class cmake_clean(install):
+
+
+    def run(self):
+
+        # Find build directory (in-place)
+        abspath = os.path.abspath(os.path.dirname(__file__))
+        build_path = os.path.join(abspath, "quantum_python", "core")
+        os.chdir(build_path)
+        print("Removing CMake build files...")
+
+        try:
+            shutil.rmtree("CMakeFiles")
+        except:
+            pass
+
+        files = ["CMakeCache.txt", "Makefile", "timer.dat", "cmake_install.cmake", "core.cpython-35m-darwin.so"]
+        for f in files:
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+
+        print("...finished")
+        #
 
 if __name__ == "__main__":
     setuptools.setup(
@@ -117,5 +144,6 @@ if __name__ == "__main__":
         zip_safe=False,
         cmdclass={
             'cmake': cmake_build,
+            'clean': cmake_clean,
         },
     )
