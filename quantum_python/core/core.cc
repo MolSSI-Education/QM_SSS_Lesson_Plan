@@ -40,7 +40,7 @@ void compute_PKJK(py::array_t<double> I, py::array_t<double> D, py::array_t<doub
     for (size_t p = 0; p < nbf; p++){
         for (size_t q = 0; q < nbf; q++){
             for (size_t r = 0; r < nbf; r++){
-                # pragma omp simd
+#pragma omp simd
                 for (size_t s = 0; s < nbf; s++){
                     // printf("%zu %zu %zu %zu | %zu %zu\n", p, q, r, s, p * nbf + s, p * nbf3 + q * nbf2 + r * nbf + s);
                     J_ptr[p * nbf + q] += D_ptr[r * nbf + s] * I_ptr[p * nbf3 + q * nbf2 + r * nbf + s];

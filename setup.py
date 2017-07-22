@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-
 """
 This is a setup script for install a python project with a CMake dependency.
 
@@ -20,20 +19,33 @@ except ImportError:
                       "that this setup script can detect Psi4's CMake dependency trees.\n"
                       "Please run the following conda command: 'conda install psi4 -c psi4'")
 
+
+def sanatize_cmake(output):
+    print_out = []
+
+    # Cut out a few warnings that are a bit annoying, GCC wont let us override them
+    warnings = [
+        ' warning: section "__textcoal_nt"', 'note: change section name to "__const"',
+        'change section name to "__text"', 'note: change section name to "__data"',
+        ' warning: section "__datacoal_nt"', 'warning: section "__const_coal"'
+    ]
+    x = 0
+    while x < len(output):
+
+        if any(warn in output[x] for warn in warnings):
+            x += 3
+            continue
+
+        print_out.append(output[x])
+        x += 1
+
+    print_out = "\n".join(print_out)
+    return print_out
+
+
 class cmake_build(install):
 
-#    description = 'Build the nested CMake project'
-#    user_options = [
-##      # The format is (long option, short option, description).
-##        ('pylint-rcfile=', None, 'path to Pylint config file'),
-#    ]
-#
-#    def initialize_options(self):
-#      """Set default values for options."""
-#      # Each user option must be listed here with their default value.
-#
-#    def finalize_options(self):
-#      """Post-process options."""
+    #    description = 'Build the nested CMake project'
 
     def run(self):
 
@@ -60,34 +72,14 @@ class cmake_build(install):
         # Run install
         print("Compiling...")
         output = sp.check_output(["make", "-j2"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
-        print_out = []
-
-        # Cut out a few warnings that are a bit annoying, GCC wont let us override them
-        warnings = [' warning: section "__textcoal_nt"',
-                    'note: change section name to "__const"',
-                    'change section name to "__text"',
-                    'note: change section name to "__data"',
-                    ' warning: section "__datacoal_nt"',
-                    'warning: section "__const_coal"']
-        x = 0
-        while x < len(output):
-
-            if any(warn in output[x] for warn in warnings):
-                x += 3
-                continue
-
-            print_out.append(output[x])
-            x += 1
-
-        print_out = "\n".join(print_out)
+        print_out = sanatize_cmake(output)
         print(">>> make -j2\n{}".format(print_out))
 
         if "[100%]" not in print_out:
             raise Exception("Build error.\n")
 
+
 class cmake_clean(install):
-
-
     def run(self):
 
         # Find build directory (in-place)
@@ -109,7 +101,42 @@ class cmake_clean(install):
                 pass
 
         print("...finished")
-        #
+
+
+class lawrap_build(install):
+    def run(self):
+
+        # Find build directory (in-place)
+        abspath = os.path.abspath(os.path.dirname(__file__))
+        build_path = os.path.join(abspath, "lawrap_tests")
+        os.chdir(build_path)
+        print(">>> cd {}".format(build_path))
+
+        # Run CMake command
+        print("Building CMake structures...")
+        output = sp.check_output(["cmake", "-H.", "-Bbuild"]).decode("UTF-8")
+        #output = sp.check_output(["cmake", "-H.", "-Bbuild", "-DLAWrap_DIR=/Users/loriab/linux/lawrap/lawrap-install/share/cmake/LAWrap"]).decode("UTF-8")
+        print(">>> cmake -H. -Bbuild\n{}".format(output))
+        if "Build files have been" not in output:
+            raise Exception("CMake error. Output as follows:\n" + output)
+
+        # Run install
+        print("Compiling...")
+        os.chdir('build')
+        output = sp.check_output(["make", "-j2"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
+        print_out = sanatize_cmake(output)
+        print(">>> make -j2\n{}".format(print_out))
+        if "[100%]" not in print_out:
+            raise Exception("Build error. Output as follows:\n" + output)
+
+        # Run test
+        print("Testing...")
+        output = sp.check_output(["./test_cxx"]).decode("UTF-8")
+        print(">>> ./test_cxx\n{}".format(output))
+
+
+#        if "[100%]" not in output:
+#            raise Exception("Build error. Output as follows:\n" + output)
 
 if __name__ == "__main__":
     setuptools.setup(
@@ -134,7 +161,6 @@ if __name__ == "__main__":
                 'numpydoc',
             ],
         },
-
         classifiers=[
             'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
@@ -145,5 +171,5 @@ if __name__ == "__main__":
         cmdclass={
             'cmake': cmake_build,
             'clean': cmake_clean,
-        },
-    )
+            'lawrap': lawrap_build,
+        }, )
