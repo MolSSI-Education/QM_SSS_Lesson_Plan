@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <lawrap/blas.h>
 #include <lawrap/lapack.h>
 
@@ -15,10 +17,13 @@ int main()
        }
    }
 
-   dgemm('N', 'T', 10, 10, 10, 2.0, A, 10, B, 10, 0.0, C, 10);
+   dgemm('N', 'T', 10, 10, 10,
+         2.0, A, 10,
+              B, 10,
+         0.0, C, 10);
+   
    info = dsyev('V', 'U', 10, A, 10, w);
    printf("info %d\n", info);
 
    return info;
 }
-
