@@ -35,12 +35,17 @@ K[D_{\lambda \sigma}]_{\mu \nu} =   g_{\mu \lambda \nu \sigma} D_{\lambda \sigma
 
 Where $D_{\lambda \sigma}$ can take a great many forms and does not necessarily represent a canonical SCF density.
 
+
+\section{The PK Supermatrix algorithms}
+
 \section{Density-fitted Coulomb and Exchange algorithms}
 
+\subsection{Theory}
 With density fitting\cite{Weigend:2002ga, Vahtras:1993db, Dunlap:1979gh, Whitten:1973ju} the two-electron integrals are represented by the following
 \begin{eqnarray}
 g_{\mu \nu \lambda \sigma} \approx \widetilde{(\mu \nu |P)} [J^{-1}]_{PQ} \widetilde{(Q| \lambda \sigma)}
 \end{eqnarray}
+
 
 where the Coulomb metric $[J]_{PQ}$ and the three center overlap integral $\widetilde{(Q| \lambda \sigma)} $ are defined as
 \begin{eqnarray}
@@ -54,12 +59,14 @@ To simplify the density fitting notation, the inverse Coulomb metric is typicall
 g_{\mu \nu \lambda \sigma} &\approx (\mu \nu |P) (P| \lambda \sigma)
 \end{align}
 
+\subsection{Coulomb Matrix}
 The Coulomb matrix can then be computed in $\mathcal{O}($N$^2$N$_{aux}$) operations:
 \begin{align}
 \chi_P &= (P| \lambda \sigma) D_{ \lambda \sigma} \\
 J[D_{ \lambda \sigma}]_{\mu \nu} &= (\mu \nu |P) \chi_P
 \end{align}
 
+\subsection{Exchange Matrix}
 The Exchange matrix can be computed in $\mathcal{O}($N$^3$N$_{aux}$) operations:
 \begin{align}
 \zeta_{P \nu\lambda} &= (P| \nu \sigma) D_{ \lambda \sigma} \\
@@ -78,12 +85,48 @@ This technique is especially beneficial when $p$ is an inactive or active index 
 It should be noted that Eqs. 12-15 pertain to the generalized case where $C_{p\sigma} \neq C_{p\lambda}$, if both $C$ matrices are identical, only one $\zeta$ intermediate needs to be built.
 The $C_{p\sigma} \neq C_{p\lambda}$ case often arises in SCF theory when either rotated, transition, or generalized density matrices are used.
 
+\subsection{Benefits}
 Computation of the Coulomb and Exchange matrices through conventional means costs N$^4$, here we see that Coulomb builds are rank reduced, but Exchange builds are of the same rank.
 The real benefit of density-fitted integrals for $K$ builds comes from data locality and data storage.
 As N$_{aux}$ is typically twice the size of $N$, we can imagine a case with 3000 AO basis functions.
 Conventional 4-index two-electron integrals would use 81 TB if the 8-fold symmetry of the tensor is exploited, on the other hand, the 3-index density-fitted tensor would only take up 216 GB if the 2-fold symmetry is exploited, a reduction of 375 fold.
 
+\subsection{Code snippets}
+In order to compute the necessary quantities several new code techniques need to be first introduced.
+If you observe the $[J]_{PQ} $ and $\widetilde{(Q| \lambda \sigma)} $ integrals carefully you should
+notice that these are conventional ERI integrals without two or one centers, respectively.
+Therefore, we compute these integrals just like ERI's, but with a so-called "zero-basis" which,
+in effect, does introduce a new center.
 
+First we need to build our basis sets and MintsHelper object,
+\begin{verbatim}
+# Get orbital basis from a Wavefunction object
+orb = wfn.basisset()
+
+# The auxiliary basis set
+aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other="aug-cc-pVDZ")
+
+# The zero basis set
+zero_bas = psi4.core.BasisSet.zero_ao_basis_set()
+
+# Build instance of MintsHelper
+mints = psi4.core.MintsHelper(orb)
+\end{verbatim}
+
+The MintsHelper object can also accept a series of basis objects indicating which basis each index should be.
+The $\widetilde{(Q| \lambda \sigma)} $ and $[J]_{PQ} $ quantities can then be built like the following,
+\begin{verbatim}
+# Build (P|pq) raw 3-index ERIs, dimension (1, Naux, nbf, nbf)
+Qls_tilde = mints.ao_eri(zero_bas, aux, orb, orb)
+Qls_tilde = np.squeeze(Qls_tilde) # remove the 1-dimensions
+
+# Build & invert Coulomb metric, dimension (1, Naux, 1, Naux)
+metric = mints.ao_eri(zero_bas, aux, zero_bas, aux)
+metric.power(-0.5, 1.e-14)
+metric = np.squeeze(metric) # remove the 1-dimensions
+\end{verbatim}
+
+From here the $(Q| \lambda \sigma)$ can be assembled and then contracted with $C$ or $D$ to build the coulomb and exchange matrices.
 
 \bibliographystyle{aip.bst}
 \bibliography{references,konrad_references,jrncodes,mainbib-ds}
