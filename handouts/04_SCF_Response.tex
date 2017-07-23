@@ -26,14 +26,13 @@
 \rule{\textwidth}{1pt}
 \leftright{The Molecular Sciences Software Institute}{Daniel G. A. Smith} %-- left and right positions in the header
 
-Work in progress, need to shift over to actual response and then second-order optimization tacked on at the end.
-
 \bigskip
 \section{Second-order orbital optimization}
-
-Diagonalization builds completely new orbitals at every iteration; an alternative is to construct new orbitals by rotating the orbitals of the previous iteration.
+To begin our response discussion at the SCF level we will first discuss solving the SCF equations with full Newton steps rather than diagonalization.
+Where diagonalization builds completely new orbitals at every iteration; this Newton scheme will construct new orbitals by rotating the orbitals of the previous iteration.
+These rotations will be formed by fundamental linear algebra principles as their gradient and Hessian is well defined.
 This is often called second-order optimization and, if done exactly, the convergence will be quadratic with respect to the MO gradient\cite{Helgaker:2000ug}, e.g., ${\rm grad}_{pq}^{n+1} \approx ({{\rm grad}_{pq}^{n}}) ^2$.
-As a consequence of the quadratic convergence, the second-order procedure can only be started once all elements of the gradient in the MO basis are less than one, else the error will increase.
+As a consequence of the quadratic convergence, the second-order procedure can only be started once all elements of the gradient in the MO basis are less than one, else the error will increase. 
 
 The overall goal is to find an orbital rotation matrix, ${\bm \kappa}$, that satisfies the following set of linear equations:
 
@@ -50,63 +49,62 @@ The ${\bm \kappa}$ matrix is a antisymmetric matrix of non-redundant rotations t
 \end{align}
 Rotations within a given space (inactive or virtual for SCF) are redundant: the only non-redundant orbital rotations for SCF are the inactive-virtual ones.
 
-The orbital gradient can be written as
+The orbital gradient for RHF gradient can be written as,
 \begin{eqnarray}
-{\rm E}^{(1)}_{pq} = 2(F_{pq} - F_{qp})
+{\rm E}^{(1)}_{pq} = F_{pq}
 \end{eqnarray}
 
-where $F$ is our generalized Fock matrix\cite{Helgaker:2000ug}
+where $F$ is our generalized Fock matrix\cite{Helgaker:2000ug} in MO indices,
+
 \begin{align}
-F_{in} &= 2 ({^AF_{in}} + {^IF_{in}})\\
-F_{vn}& ={^IF}_{nw}\gamma_{vw} + Q_{vn},\;\;\;      Q_{vn} = \Gamma_{vwxy}g_{nwxy}\\
-F_{an} &= 0
+{F}_{pq} &= h_{pq} + 2 g_{pqrs} D_{rs} - g_{prqs} D_{rs}
 \end{align}
 
-and the Active (${^AF}$) and Inactive (${^IF}$) Fock matrices are defined as
-\begin{align}
-{^IF}_{pq} &= H_{pq} + 2 g_{pqrs} D_{rs} - g_{prqs} D_{rs}\\
-{^AF}_{pq} &=\gamma_{tu} (g_{pqtu} - \frac{1}{2} g_{ptuq})
-\end{align}
-In the case of RHF, the Inactive Fock matrix is identical to the AO Fock matrix given in Eq.~\ref{rhf_fock}, this equation can be rewritten considering the special form of the RHF density matrix with MO indices
-\begin{align}
-{^IF}_{pq} &= H_{pq} + 2 g_{pqii} - g_{piqi}
-\end{align}
-
-%The orbital Hessian can be derived in a similar manner from a double excitation in combination with the rotation matrix $\kappa$
-%\begin{eqnarray}
-%{\rm E}^{(2)} \kappa = \sum\limits_{r>s} \langle {\rm CSF} | [{\rm E}^{-}_{pq},[ E^{-}_{rs}, \hat{H}]]|{\rm CSF}  \rangle \kappa_{rs}= 2 \langle {\rm CSF}  | [ {\rm E}_{pq}, [\sum\limits_{rs}\kappa_{rs}E_{rs}, \hat{H}]] | {\rm CSF}  \rangle
-%\end{eqnarray}
-
-The orbital Hessian can be built explicitly; however, this matrix is quite large and it is typically sufficient to know the product of the Hessian with a given vector.
-To do so, we will introduce the rotated Hamiltonian
-\begin{eqnarray}
-\hat{H}^\kappa = h^\kappa_{pq}\gamma_{pq} + g^\kappa_{pqrs}\Gamma_{pqrs}
-\end{eqnarray}
-
-and the one-index transformed integrals
+To derive our orbital-response Hessian we can introduce the one-index and two-index transformed integrals
 \begin{align}
 h^{\kappa}_{pq} &=  (\kappa_{po}h_{oq} + \kappa_{qo}h_{po})\\
 g^{\kappa}_{pqrs} &= (\kappa_{po}g_{oqrs} + \kappa_{qo}g_{pors} +\kappa_{ro}g_{pqos} + \kappa_{so}g_{pqro})
 \end{align}
 
-Applying this Hamiltonian to our SCF wavefunction results in a rotated Fock matrix ($F^\kappa$) where all one- and two-electron integrals have been replaced by their respective one-index transformed counterparts.
-This rotated Fock matrix is the Hessian vector product (${\bf E}^{(2)}{\bm \kappa}$) and can be substituted for the LHS of Eq.~\ref{somcscf_master}:
+insert these rotated integrals into our Fock matrix,
+\begin{align}
+F^\kappa = h^\kappa_{pq} + 2 g^\kappa_{pqrs} D_{rs} - g^\kappa_{prqs} D_{rs}
+\end{align}
+
+expanding these equations we find,
+\begin{align}
+F^\kappa_{pq} \equiv {\rm\bf E}^{(2)}_{pqrs}\kappa_{rs}  =& (\kappa_{mp}h_{pn} + \kappa_{np}h_{mp}) + \notag\\
+& 2( D_{rs}\kappa_{po} g_{oqrs} + \kappa_{qo} g_{pors} + \kappa_{ro} g_{pqos} + \kappa_{so} g_{pqro}) -\notag\\
+&\;(D_{rs} \kappa_{po} g_{orqs} + \kappa_{qo} g_{pros} + \kappa_{ro} g_{poqs} + \kappa_{so} g_{prqo})
+\end{align}
+
+and then simplified by considering the permutational symmetry of the $g$ tensor and collapse of several elements to form various Fock matrices,
 \begin{eqnarray}
-2(F^{\kappa}_{pq} - F^{\kappa}_{qp}) = -2(F_{pq} - F_{qp})
+{\rm\bf E}^{(2)}_{pqrs}\kappa_{rs} = ({F}_{qs}\kappa_{rs} + {F}_{pr}\kappa_{rs}) + \kappa_{rs}(4 g_{pqrs} - g_{prqs} - g_{sqrp})
 \end{eqnarray}
 
-
-Considering the special structure of the generalized Fock matrix for RHF calculations (only inactive-virtual rotations are non-redundant and  $F_{ai}$ is zero), we can write our set of linear equations for the last time as
+For RHF only the occupied - virtual rotations change the Wavefunction. We can therefore simplify this above once more,
 \begin{eqnarray}
-\label{soscf_iter}
--4 {^IF}^{\kappa}_{ia} = 4 {^IF}_{ia}
+{\rm\bf E}^{(2)}_{iajb}\kappa_{jb} = (-{F}_{ab}\kappa_{jb} + {F}_{ij}\kappa_{jb}) + \kappa_{jb}(4 g_{iajb} - g_{ijab} - g_{bjai})
 \end{eqnarray}
-which must be solved iteratively.
-As shown below, this is the most computationally efficient form of these equations.
-For demonstration purposes, the ${^IF}^{\kappa}_{ia}$ tensor need not be contracted with ${\bm \kappa}$ to yield iterative form shown in Eq.~\ref{soscf_iter}.
-Instead, the full 4-index orbital Hessian can be constructed and Eq.~\ref{somcscf_master} can then be solved exactly.
-However, when solved exactly, the cost of inverting the full orbital Hessian is $o^3v^3$, unless $o$ is very small, we have effectively changed the cost of SCF from N$^4$ to N$^6$, or roughly the cost of CCSD.
-Solving either Eq.~\ref{somcscf_master} or Eq.~\ref{soscf_iter} will be denoted second-order SCF (SOSCF). 
+
+Our Eqn. 1 therefore becomes,
+\begin{eqnarray}
+\label{final_soscf}
+{\rm\bf E}^{(2)}_{iajb}\kappa_{jb} = F_{ab}
+\end{eqnarray}
+
+The easiest way to solve this is by direct inversion,
+\begin{eqnarray}
+\kappa_{jb} = F_{ab} [ {\rm\bf E}^{(2)}_{iajb} ] ^ {-1}
+\end{eqnarray}
+
+Solving Eqn.~\ref{final_soscf} either through direct inversion or through an iterative method is known as second-order SCF (SOSCF).
+Returning to our "physicist's water molecule", the convergence pattern for SOSCF is demonstrated in Fig.~\ref{rhf_water_soscf}.
+We can observe that three regular DIIS steps were required before all elements of the gradient were less than one.
+The RHF wavefunction is then converged to within machine precision in terms of energy and density within 4 SOSCF iterations.
+SOSCF is quite beneficial in terms of the number of iterations, but is not currently competitive in terms of cost.
+ However, when solved exactly, the cost of inverting the full orbital Hessian is $o^3v^3$, unless $o$ is very small, we have effectively changed the cost of SCF from N$^4$ to N$^6$, or roughly the cost of CCSD.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -126,42 +124,29 @@ RHF Iteration   8: Energy = -75.98979578551835   dE = -9.948E-14   dRMS = 2.395E
 \end{center}
 \end{figure}
 
-Returning to our "physicist's water molecule", the convergence pattern for SOSCF is demonstrated in Fig.~\ref{rhf_water_soscf}.
-We can observe that three regular DIIS steps were required before all elements of the gradient were less than one.
-The RHF wavefunction is then converged to within machine precision in terms of energy and density within 4 SOSCF iterations.
-SOSCF is quite beneficial in terms of the number of iterations, but is not currently competitive in terms of cost.
 
-Let us return our attention to Eq.~\ref{soscf_iter} and to the implementation of an efficient rotated Inactive Fock ($^IF^{\kappa}$) build
+To reduce the cost we can solve Eqn.~\ref{final_soscf} through iterative means and to avoid the costly 4-index ERI transformation we can solve it in the AO basis.
+Consider the left hand side of Eqn.~\ref{final_soscf} again,
 \begin{eqnarray}
-{^IF}^{\kappa}_{mn} = h^{\kappa}_{mn} + 2g^{\kappa}_{mnii} - g^{\kappa}_{miin}
+\label{soscf_iter}
+{F}^{\kappa}_{ia}\equiv {\rm\bf E}^{(2)}_{iajb}\kappa_{jb} = (-{F}_{ab}\kappa_{jb} + {F}_{ij}\kappa_{jb}) + \kappa_{jb}(4 g_{iajb} - g_{ijab} - g_{bjai})
 \end{eqnarray}
 
-Inserting our equations for one-index transformed integrals, we obtain
+If we are careful we can compute this product using the conventional AO-based $J$ and $K$ routines:
 \begin{align}
-{^IF}^{\kappa}_{mn} =& (\kappa_{mp}h_{pn} + \kappa_{np}h_{mp}) + \notag\\
-& 2(\kappa_{mo} g_{onii} + \kappa_{no} g_{moii} + \kappa_{io} g_{mnoi} + \kappa_{io} g_{mnio}) -\notag\\
-&\;(\kappa_{mo} g_{oiin} + \kappa_{io} g_{moin} + \kappa_{io} g_{mion} + \kappa_{no} g_{miio})
-\end{align}
-
-Simplifying and collecting these terms yields
-\begin{eqnarray}
-{^IF}^{\kappa}_{mn} = ({^IF}_{mp}\kappa_{np} + {^IF}_{pn}\kappa_{mp}) + \kappa_{ip}(4 g_{mnip} - g_{mpin} - g_{npim})
-\end{eqnarray}
-
-which can be computed using conventional AO-based $J$ and $K$ routines:
-\begin{align}
-\vartheta _{\lambda\sigma} =& C_{i\lambda}\kappa_{ip}C_{p\sigma}\\
-{^IF}^{\kappa}_{mn} =& ({^IF}_{mp}\kappa_{np} + {^IF}_{pn}\kappa_{mp}) \notag\\&+ C_{m\mu}
-(4 J[\vartheta_{\lambda\sigma}]_{\mu\nu} - K[\vartheta_{\lambda\sigma}]_{\mu\nu} - K[\vartheta_{\lambda\sigma}]_{\nu\mu})C_{n\nu}
+\label{IFk_AO}
+\vartheta _{\lambda\sigma} =& C_{j\lambda}\kappa_{jb}C_{b\sigma}\\
+{F}^{\kappa}_{ia} =& ({F}_{ij}\kappa_{ja} - \kappa_{jb}{F}_{ba}) \notag\\&+ C_{i\mu}
+(4 J[\vartheta_{\lambda\sigma}]_{\mu\nu} - K[\vartheta_{\lambda\sigma}]_{\mu\nu} - K[\vartheta_{\lambda\sigma}]_{\nu\mu})C_{a\nu}
 \label{IFk_AO}
 \end{align}
 
-The cost of solving Eq.~\ref{soscf_iter} is now N$^4$ when the left hand side is computed from Eq.~\ref{IFk_AO} and each iteration of Eq.~\ref{soscf_iter} (often called a microiteration) is equivalent to the cost of a normal RHF iteration.
+The cost of solving Eq.~\ref{final_soscf} is now an iterative N$^4$th when the left hand side is computed from Eq.~\ref{IFk_AO} each of these contractions (often called a microiteration) is equivalent to the cost of a normal RHF iteration.
 The term macroiteration refers to a step in which the overall SCF energy is computed, this step collects all Fock builds, microiterations, and orbital rotations.
 
 \begin{figure}[htbp]
 \begin{center}
-\caption{A RHF computation of "physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set utilizing DIIS and SOSCF convergence. For the SOSCF step, Eq.~\ref{soscf_iter} has been solved iteratively through a conjugate gradient method limited to four microiterations. The rightmost abbreviations indicate the type of step taken on each iteration.}
+\caption{A RHF computation of "physicist's water molecule" starting with a core Hamiltonian guess in the cc-pVDZ basis set utilizing DIIS and SOSCF convergence. For the SOSCF step, Eq.~\ref{final_soscf} has been solved iteratively through a conjugate gradient method limited to four microiterations. The rightmost abbreviations indicate the type of step taken on each iteration.}
 \label{rhf_water_soscf_iter}
 {\footnotesize\linespread{1}\normalfont\ttfamily
 \begin{verbatim}
@@ -178,12 +163,31 @@ RHF Iteration   8: Energy = -75.98979578551806   dE = -3.832E-10   dRMS = 1.648E
 \end{figure}
 
 Our "physicist's water molecule" was again optimized using iterative SOSCF in Fig.~\ref{rhf_water_soscf_iter}.
-We observe that while the convergence is significantly faster than for the DIIS acceleration alone, the overall convergence is much slower than when Eq.~\ref{soscf_iter} was solved exactly.
-This is due to the fact that the number of microiterations used is insufficient to solve Eq.~\ref{soscf_iter} exactly.
+We observe that while the convergence is significantly faster than for the DIIS acceleration alone, the overall convergence is much slower than when Eq.~\ref{final_soscf} was solved exactly.
+This is due to the fact that the number of microiterations used is insufficient to solve Eq.~\ref{final_soscf} exactly.
 More microiterations can be utilized, but a balance between macro- and microiterations must be computationally efficient.
 However, it should be noted that even though each microiteration of SOSCF is equivalent to the cost of a normal RHF step, the overall computational effort expended for SOSCF is generally greater than the DIIS methods for a given convergence criterion.
 SOSCF should therefore only be utilized for difficult to converge SCF cases.
 
+\section{Dipole polarizabilities}
+
+The above is a form of orbital response for optimizing the SCF Wavefunction.
+Response can also be taken "how does my Wavefunction respond to an outside force"?
+When answering such questions we obtain useful molecular properties.
+
+First let us compute polarizabilities
+
+\begin{verbatim}
+tmp_dipoles = mints.ao_dipole()
+print(2 * np.vdot(tmp_dipoles[2], D))
+print(mol.nuclear_dipole()[2])
+\end{verbatim}
+
+To compute response we need gradient-like vectors C and D, in addition to the Hessian,
+
+$\langle \langle C, D \rangle \rangle =  (C^{(1)})^T ({\rm\bf E}^{(2)})^{-1}  (D^{(1)})  $
+
+The result is effectively the average value of property C under a perturbation on the Wavefunction by D.
 
 \bibliographystyle{aip.bst}
 \bibliography{references,konrad_references,jrncodes,mainbib-ds}
