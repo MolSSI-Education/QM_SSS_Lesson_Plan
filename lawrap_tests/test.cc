@@ -23,7 +23,7 @@ int main()
                       B.data(), 10,
                  0.0, C.data(), 10);
    
-    int info = heev('V', 'U', 10, A.data(), 10, w.data());
+    int info = LAWrap::heev('V', 'U', 10, A.data(), 10, w.data());
     printf("info %d\n", info);
 
     return info;

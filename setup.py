@@ -131,6 +131,8 @@ class lawrap_build(install):
 
         # Run test
         print("Testing...")
+        output = sp.check_output(["./test_c"]).decode("UTF-8")
+        print(">>> ./test_c\n{}".format(output))
         output = sp.check_output(["./test_cxx"]).decode("UTF-8")
         print(">>> ./test_cxx\n{}".format(output))
 
