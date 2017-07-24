@@ -71,7 +71,7 @@ class cmake_build(install):
 
         # Run install
         print("Compiling...")
-        output = sp.check_output(["make", "-j2"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
+        output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
         print_out = sanatize_cmake(output)
         print(">>> make -j2\n{}".format(print_out))
 
@@ -123,7 +123,7 @@ class lawrap_build(install):
         # Run install
         print("Compiling...")
         os.chdir('build')
-        output = sp.check_output(["make", "-j2"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
+        output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
         print_out = sanatize_cmake(output)
         print(">>> make -j2\n{}".format(print_out))
         if "[100%]" not in print_out:
