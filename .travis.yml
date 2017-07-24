@@ -38,11 +38,19 @@ install:
 
 # Build the C++
   - sed -i "s|/usr/lib64/libpthread.so;/usr/lib64/libm.so;/usr/lib64/libdl.so|-lpthread;-lm;-ldl|g" /home/travis/miniconda/envs/p4env/share/cmake/TargetLAPACK/TargetLAPACKTargets.cmake
-  #- cd quantum_python/core
-  #- cmake -C /home/travis/miniconda/envs/p4env/share/cmake/psi4/psi4PluginCache.cmake -DCMAKE_PREFIX_PATH=/home/travis/miniconda/envs/p4env .
-  #- make VERBOSE=1
-  - python setup.py cmake
+  - cd quantum_python/core
+  - cmake -C /home/travis/miniconda/envs/p4env/share/cmake/psi4/psi4PluginCache.cmake -DCMAKE_PREFIX_PATH=/home/travis/miniconda/envs/p4env .
+  - make VERBOSE=1
+  #- python setup.py cmake
   #- python setup.py lawrap
+  - cd ../../
+  - cd lawrap_tests
+  - cmake -H. -Bbuild
+  - cd build
+  - make VERBOSE=1
+  - ./test_c
+  - ./test_cxx
+  - cd ../../
 
 before_script:
   - uname -a
