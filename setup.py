@@ -20,7 +20,7 @@ except ImportError:
                       "Please run the following conda command: 'conda install psi4 -c psi4'")
 
 
-def sanatize_cmake(output):
+def sanitize_cmake(output):
     print_out = []
 
     # Cut out a few warnings that are a bit annoying, GCC wont let us override them
@@ -73,7 +73,7 @@ class cmake_build(install):
         # Run install
         print("Compiling...")
         output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
-        #print_out = sanatize_cmake(output)
+        #print_out = sanitize_cmake(output)
         print_out = output
         print(">>> make -j2\n{}".format(print_out))
 
@@ -126,8 +126,8 @@ class lawrap_build(install):
         print("Compiling...")
         os.chdir('build')
         output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
-        print_out = sanatize_cmake(output)
-        #print_out = output
+        #print_out = sanitize_cmake(output)
+        print_out = output
         print(">>> make -j2\n{}".format(print_out))
         if "[100%]" not in print_out:
             raise Exception("Build error. Output as follows:\n" + output)
