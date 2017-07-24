@@ -23,7 +23,7 @@ install:
   - conda update -q conda
   - conda info -a
 
-  - conda create -q -n p4env python=$PYTHON_VER psi4-ci psi4 scipy -c psi4/label/dev -c psi4
+  - conda create -q -n p4env python=$PYTHON_VER ci-psi4 psi4 scipy lawrap -c psi4/label/dev -c psi4
   - source activate p4env
   - conda install cmake
   - conda list
@@ -38,6 +38,7 @@ install:
 
 # Build the C++
   - python setup.py cmake
+  - python setup.py lawrap
 
 before_script:
   - uname -a
