@@ -31,7 +31,6 @@ def sanitize_cmake(output):
     ]
     x = 0
     while x < len(output):
-        print (x, output[x])
 
         if any(warn in output[x] for warn in warnings):
             x += 3
@@ -74,7 +73,7 @@ class cmake_build(install):
         print("Compiling...")
         output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
         #print_out = sanitize_cmake(output)
-        print_out = output
+        print_out = '\n'.join(output)
         print(">>> make -j2\n{}".format(print_out))
 
         if "[100%]" not in print_out:
@@ -126,7 +125,7 @@ class lawrap_build(install):
         os.chdir('build')
         output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
         #print_out = sanitize_cmake(output)
-        print_out = output
+        print_out = '\n'.join(output)
         print(">>> make -j2\n{}".format(print_out))
         if "[100%]" not in print_out:
             raise Exception("Build error. Output as follows:\n" + output)
