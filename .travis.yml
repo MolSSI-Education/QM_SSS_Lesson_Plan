@@ -42,7 +42,7 @@ install:
   #- cmake -C /home/travis/miniconda/envs/p4env/share/cmake/psi4/psi4PluginCache.cmake -DCMAKE_PREFIX_PATH=/home/travis/miniconda/envs/p4env .
   #- make VERBOSE=1
   - python setup.py cmake
-  - python setup.py lawrap
+  #- python setup.py lawrap
 
 before_script:
   - uname -a

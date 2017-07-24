@@ -117,7 +117,6 @@ class lawrap_build(install):
         # Run CMake command
         print("Building CMake structures...")
         output = sp.check_output(["cmake", "-H.", "-Bbuild"]).decode("UTF-8")
-        #output = sp.check_output(["cmake", "-H.", "-Bbuild", "-DLAWrap_DIR=/Users/loriab/linux/lawrap/lawrap-install/share/cmake/LAWrap"]).decode("UTF-8")
         print(">>> cmake -H. -Bbuild\n{}".format(output))
         if "Build files have been" not in output:
             raise Exception("CMake error. Output as follows:\n" + output)
@@ -177,4 +176,6 @@ if __name__ == "__main__":
             'cmake': cmake_build,
             'clean': cmake_clean,
             'lawrap': lawrap_build,
-        }, )
+        },
+    )
+
