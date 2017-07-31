@@ -8,6 +8,10 @@ find_package(LAWrap REQUIRED)
 target_link_libraries(test_c PRIVATE LAWrap::lawrap)
 target_link_libraries(test_cxx PRIVATE LAWrap::lawrap)
 
+find_package(TargetLAPACK REQUIRED)
+target_link_libraries(test_c PRIVATE tgt::lapack)
+target_link_libraries(test_cxx PRIVATE tgt::lapack)
+
 # Usage:
 #  >>> ls
 #  CMakeLists.txt   test.c    test.cc

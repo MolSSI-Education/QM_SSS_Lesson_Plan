@@ -175,19 +175,27 @@ The above is a form of orbital response for optimizing the SCF Wavefunction.
 Response can also be taken "how does my Wavefunction respond to an outside force"?
 When answering such questions we obtain useful molecular properties.
 
-First let us compute polarizabilities
+First let us compute the $z$ dipole of a given molecule,
 
 \begin{verbatim}
-tmp_dipoles = mints.ao_dipole()
-print(2 * np.vdot(tmp_dipoles[2], D))
-print(mol.nuclear_dipole()[2])
+dipoles = mints.ao_dipole()
+electric_dipole_z = 2 * np.vdot(tmp_dipoles[2], D)
+nulcear_dipole_z = mol.nuclear_dipole()[2]
+dipole_z = electric_dipole_z + nulcear_dipole_z
 \end{verbatim}
 
-To compute response we need gradient-like vectors C and D, in addition to the Hessian,
+this procedure can be repeated for the $x$ and $y$ components as well.
+
+To compute linear response terms we need gradient-like vectors C and D, in addition to the Hessian,
 
 $\langle \langle C, D \rangle \rangle =  (C^{(1)})^T ({\rm\bf E}^{(2)})^{-1}  (D^{(1)})  $
 
 The result is effectively the average value of property C under a perturbation on the Wavefunction by D.
+Since the Hessian is symmetric the response is the same as the average value of property D under perturbation by C.
+
+To compute dipole polarizabilities, $C$ and $D$ can be replaced by the dipole tensors built above and the Hessian is the standard orbital response Hessian built in the second-order SCF.
+Keep in mind you need to compute all possible pairs of $C$ and $D$ where each span the $x$, $y$, and $z$ components, you will end up with 9 results in total $xx$, $xy$, $xz$, $yy$, etc.
+
 
 \bibliographystyle{aip.bst}
 \bibliography{references,konrad_references,jrncodes,mainbib-ds}
